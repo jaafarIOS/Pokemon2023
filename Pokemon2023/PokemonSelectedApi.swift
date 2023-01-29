@@ -7,15 +7,6 @@
 
 import Foundation
 
-struct PokemonSelected : Codable {
-    var sprites: PokemonSprites
-    var weight: Int
-}
-
-struct PokemonSprites : Codable {
-    var front_default: String?
-}
-
 class PokemonSelectedApi  {
     func getSprite(url: String, completion:@escaping (PokemonSprites) -> ()) {
         guard let url = URL(string: url) else { return }
