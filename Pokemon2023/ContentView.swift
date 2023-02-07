@@ -8,30 +8,63 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State var pokemon = [PokemonEntry]()
+    @State var pokemons: [PokemonDetails] = []
 
     var body: some View {
         NavigationView {
-            
-            List {
-                ForEach(pokemon) {
-                    entry in
+          
+            List(pokemons) { pokemon in
+                HStack {
+                    PokemonImage(imageLink: "\(pokemon.entry.url)",
+                                 size: CGSize(width: 100, height: 100))
+                        .background(.brown)
+                        .cornerRadius(50.0)
+                        .padding(.trailing,20)
                     
-                    HStack {
-                        PokemonImage(imageLink: "\(entry.url)")
-                            .background(.brown).cornerRadius(50.0)
-                            .padding(.trailing,20)
+                    NavigationLink("\(pokemon.entry.name)".capitalized) {
+                        // -- Here starts the detail view --
                         
-                        NavigationLink("\(entry.name)"
-                            .capitalized ,destination: Text("Detail view for \(entry.name)").foregroundColor(.red)
-                            .font(.system(size: 20.0)).bold)
+                        VStack {
+                            PokemonImage(imageLink: "\(pokemon.entry.url)",
+                                         size: CGSize(width: 300, height: 250))
+                                .background(.gray)
+                                .cornerRadius(30.0)
+                                .padding(.horizontal, Device.isIpad ? 24.0 : 16.0)
+                            // You can add more information here like this
+                            List {
+                                Section("Details") {
+                                    Text("Base experience: \(pokemon.details.base_experience)").backgroundStyle(.gray)
+                                    Text("Weight: \(pokemon.details.weight)")
+                                    Text("Height: \(pokemon.details.height)")
+                                }
+                                    
+                                
+                                Section("Moves") {
+                                    ForEach(pokemon.details.moves) { move in
+                                        Text(move.move.name.capitalized)
+                                    }
+                                }
+                                Section("Stats") {
+                                  
+                                    ForEach(pokemon.details.stats) { stat in
+                                        HStack {
+                                            Text(stat.stat.name.capitalized)
+                                            Spacer()
+                                            Text("\(stat.base_stat)")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        .navigationTitle(pokemon.entry.name.capitalized)
+
+                        // -- Here ends the detail view --
                     }
-                } .background(.green)
+                }
             }
-           
             .onAppear {
                 PokeApi().getData() { pokemon in
-                    self.pokemon = pokemon
+                    self.pokemons = pokemon
                 }
             }
             .navigationTitle("Pokemon SwiftUI")

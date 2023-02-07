@@ -9,28 +9,32 @@ import SwiftUI
 
 struct PokemonImage: View {
     var imageLink = ""
+    var size: CGSize
     @State private var pokemonSprite = ""
     
     var body: some View {
-        AsyncImage(url: URL(string: pokemonSprite))
-            .frame(width: 75, height: 75)
-            .onAppear {
-                let loadedData = UserDefaults.standard.string(forKey: imageLink)
-                
-                if loadedData == nil {
-                    getSprite(url: imageLink)
-                    UserDefaults.standard.set(imageLink, forKey: imageLink)
-                   
-                } else {
-                    getSprite(url: loadedData!)
-                  
-                }
-            }
-            .clipShape(Circle())
-            .foregroundColor(Color.gray.opacity(5.0))
-            .scaledToFit()
-            
         
+        AsyncImage(url: URL(string: pokemonSprite)) { image in
+            image.resizable()
+        } placeholder: {
+            ProgressView()
+        }
+        .onAppear {
+            let loadedData = UserDefaults.standard.string(forKey: imageLink)
+
+            if loadedData == nil {
+                getSprite(url: imageLink)
+                UserDefaults.standard.set(imageLink, forKey: imageLink)
+                //print("New url!!! Caching...")
+            } else {
+                getSprite(url: loadedData!)
+                //print("Using cached url...")
+            }
+            //print(pokemonSprite)
+        }
+        .padding(Device.isIpad ? 24.0 : 16.0)
+        .frame(width: size.width, height: size.height)
+        .foregroundColor(Color.gray.opacity(0.60))
     }
     
     func getSprite(url: String) {
@@ -45,7 +49,7 @@ struct PokemonImage: View {
 
 struct PokemonDetail_Previews: PreviewProvider {
     static var previews: some View {
-        PokemonImage()
+        PokemonImage(size: CGSize(width: 75, height: 75))
             .previewInterfaceOrientation(.portrait)
     }
 }
